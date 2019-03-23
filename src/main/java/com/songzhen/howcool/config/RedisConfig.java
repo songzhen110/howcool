@@ -9,6 +9,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 
+/**
+ * RedisConfig
+ *
+ * @author lucas 2018-07-28
+ */
 @Configuration
 @AutoConfigureAfter(RedisAutoConfiguration.class)
 public class RedisConfig extends CachingConfigurerSupport {

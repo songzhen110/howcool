@@ -26,9 +26,9 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 用户注册登录登出.
- * ＜p＞用户注册登录登出＜br＞
- * 用户注册登录登出
+ * 用户相关.
+ *
+ * 用户注册、登录、登出、用户分页
  *
  * @author Lucas
  * @date 2019/3/16
