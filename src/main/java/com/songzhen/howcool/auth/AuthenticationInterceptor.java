@@ -41,11 +41,6 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
                 // 从HTTP请求头中获取TOKEN信息
                 String token = httpServletRequest.getHeader("Authorization");
 
-                // HTTP请求头中TOKEN解析出的用户信息
-                String uid = JwtUtil.getUid(token);
-                String userName = JwtUtil.getUserName(token);
-                String realName = JwtUtil.getRealName(token);
-
                 // 检查TOKEN
                 if (!checkToken(token)) {
                     // TOKEN错误时，提示用户登录
@@ -56,6 +51,11 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
                     httpServletResponse.getWriter().append(JSON.toJSONString(retMap));
                     return false;
                 }
+
+                // HTTP请求头中TOKEN解析出的用户信息
+                String uid = JwtUtil.getUid(token);
+                String userName = JwtUtil.getUserName(token);
+                String realName = JwtUtil.getRealName(token);
 
                 // 组装用户信息到REQUEST中
                 Map<String, Object> currentUser = new HashMap<>(16);

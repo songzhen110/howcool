@@ -10,9 +10,12 @@ import cn.hutool.core.date.format.FastDateFormat;
  * @author Lucas
  * @date 2019/3/17
  */
-public class ApplicatConstant {
+public class Application {
 
     //-------------------------------------------------------------------------------------------------------------------------------- Normal
+    /** TOKEN前缀：Bearer  */
+    public static final String PREFIX_TOKEN = "Bearer ";
+
     /** 用户ID前缀：HC */
     public static final String USER_ID_PREFIX = "HC";
 

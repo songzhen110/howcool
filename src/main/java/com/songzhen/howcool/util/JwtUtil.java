@@ -1,5 +1,6 @@
 package com.songzhen.howcool.util;
 
+import com.songzhen.howcool.constants.Application;
 import com.songzhen.howcool.model.vo.CurrentUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
@@ -102,9 +103,8 @@ public class JwtUtil {
      * @return Claims
      */
     private static Claims parseJwt(String jsonWebToken) {
-        if (jsonWebToken != null && jsonWebToken.startsWith("Bearer ")) {
+        if (jsonWebToken != null && jsonWebToken.startsWith(Application.PREFIX_TOKEN)) {
             Claims claims;
-
             try {
                 claims = Jwts.parser().setSigningKey(RSACryptographyUtil.getPublicKey(getProperties().getProperty("token.publicKey"))).parseClaimsJws(jsonWebToken.substring(7)).getBody();
                 return claims;

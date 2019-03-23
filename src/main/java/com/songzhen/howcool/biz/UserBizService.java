@@ -5,7 +5,7 @@ import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.google.common.collect.Maps;
-import com.songzhen.howcool.constants.ApplicatConstant;
+import com.songzhen.howcool.constants.Application;
 import com.songzhen.howcool.entity.QueryUserEntity;
 import com.songzhen.howcool.model.UserModel;
 import com.songzhen.howcool.model.vo.CurrentUser;
@@ -38,8 +38,6 @@ public class UserBizService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserBizService.class);
 
-    private static final String PREFIX_TOKEN = "Bearer ";
-
     @Autowired
     private UserService userService;
 
@@ -57,13 +55,13 @@ public class UserBizService {
      */
     public Map<String, Object> addUser() {
 
-        String uId = ApplicatConstant.USER_ID_PREFIX + DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN);
+        String uId = Application.USER_ID_PREFIX + DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN);
 
         if (!checkIsExistUId(uId)) {
             UserModel model = new UserModel();
             model.setUId(uId);
             model.setUserName("zhangsan001");
-            model.setPassword(Md5Util.encodeMD5(ApplicatConstant.USER_DEFAULT_PASSWORD));
+            model.setPassword(Md5Util.encodeMD5(Application.USER_DEFAULT_PASSWORD));
             model.setStatus((byte) 1);
             model.setMobile("17211111112");
             model.setEmail("xiaoling@126.com");
@@ -183,7 +181,7 @@ public class UserBizService {
      *                      TOKEN INTERNAL STORAGE EXPIRATION TIME IS 3 HOURS AFTER SYSTEM TIME DELAY
      */
     private String saveTokenToRedis(CurrentUser currentUser) {
-        String jwt = PREFIX_TOKEN + JwtUtil.createJWT("howcool", currentUser, "", System.currentTimeMillis() + 3 * 60 * 60 * 1000);
+        String jwt = Application.PREFIX_TOKEN + JwtUtil.createJWT("howcool", currentUser, "", System.currentTimeMillis() + 3 * 60 * 60 * 1000);
         redisTemplate.opsForValue().set(currentUser.getUid(), jwt, 30, TimeUnit.MINUTES);
         return jwt;
     }
