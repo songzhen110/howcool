@@ -3,7 +3,7 @@ package com.songzhen.howcool.job;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileReader;
-import com.songzhen.howcool.enums.JobRetCodeEnum;
+import com.songzhen.howcool.model.enums.JobRetCodeEnum;
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.handler.IJobHandler;
 import com.xxl.job.core.handler.annotation.JobHandler;

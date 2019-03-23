@@ -1,4 +1,4 @@
-package com.songzhen.howcool.enums;
+package com.songzhen.howcool.model.enums;
 /**
  * XXL-JOB执行码和执行备注.
  *

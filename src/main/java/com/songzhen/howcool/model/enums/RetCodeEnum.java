@@ -1,30 +1,39 @@
 package com.songzhen.howcool.model.enums;
 
-
+/**
+ * 返回对象.
+ *
+ * @author Lucas
+ * @date 2019/3/18
+ */
 public enum RetCodeEnum {
     /**
      * 错误编码
      */
-    SUCCESS(0, "成功"),
-    FAIL(-1, "成功");
+    SUCCESS("00", "成功"),
+    ACCOUNT_UNAUTHORIZED("401", "未授权：请登录");
 
 
 
     /**
      * 编码
      */
-    private Integer code;
+    private String code;
     /**
      * 描述
      */
     private String desc;
 
-    RetCodeEnum(Integer code, String desc) {
+    RetCodeEnum(){
+
+    }
+
+    RetCodeEnum(String code, String desc) {
         this.code = code;
         this.desc = desc;
     }
 
-    public Integer getCode() {
+    public String getCode() {
         return code;
     }
 
@@ -38,12 +47,20 @@ public enum RetCodeEnum {
      * @param code 编码
      * @return 描述信息
      */
-    public static RetCodeEnum getDesc(Integer code) {
+    public static RetCodeEnum getDesc(String code) {
         for (RetCodeEnum errorCodeEnum : values()) {
             if (errorCodeEnum.getCode().equals(code)) {
                 return errorCodeEnum;
             }
         }
         return null;
+    }
+
+    @Override
+    public String toString() {
+        return "RetCodeEnum{" +
+                "code='" + code + '\'' +
+                ", desc='" + desc + '\'' +
+                '}';
     }
 }

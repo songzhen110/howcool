@@ -1,5 +1,7 @@
 package com.songzhen.howcool.auth;
 
+import com.alibaba.fastjson.JSON;
+import com.songzhen.howcool.model.enums.RetCodeEnum;
 import com.songzhen.howcool.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -43,17 +45,24 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
                 String uid = JwtUtil.getUid(token);
                 String userName = JwtUtil.getUserName(token);
                 String realName = JwtUtil.getRealName(token);
-                // 检查TOKEN
-                boolean available = checkToken(token);
 
-                if (available) {
-                    // 组装用户信息到REQUEST中
-                    Map<String, Object> currentUser = new HashMap<>(16);
-                    currentUser.put("uid", uid);
-                    currentUser.put("userName", userName);
-                    currentUser.put("realName", realName);
-                    httpServletRequest.setAttribute("currentUser", currentUser);
+                // 检查TOKEN
+                if (!checkToken(token)) {
+                    // TOKEN错误时，提示用户登录
+                    Map<String, Object> retMap = new HashMap<>(16);
+                    retMap.put("code", RetCodeEnum.ACCOUNT_UNAUTHORIZED.getCode());
+                    retMap.put("msg", RetCodeEnum.ACCOUNT_UNAUTHORIZED.getDesc());
+                    httpServletResponse.setContentType("application/json;charset=UTF-8");
+                    httpServletResponse.getWriter().append(JSON.toJSONString(retMap));
+                    return false;
                 }
+
+                // 组装用户信息到REQUEST中
+                Map<String, Object> currentUser = new HashMap<>(16);
+                currentUser.put("uid", uid);
+                currentUser.put("userName", userName);
+                currentUser.put("realName", realName);
+                httpServletRequest.setAttribute("currentUser", currentUser);
 
                 return true;
             }
@@ -66,7 +75,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
      */
     @Override
     public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object object, ModelAndView modelAndView) throws Exception {
-
+        long now = System.currentTimeMillis();
     }
 
     /**
@@ -96,7 +105,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         // 根据uid从redis中获取用户tokenInRedis
         String tokenInRedis = redisTemplate.opsForValue().get(uid);
         if (null == tokenInRedis) {
-            // 如果REDIS异常，返回成功保证正常处理业务可以继续处理
+            // 如果REDIS异常，返回成功保证正常业务可以继续处理
             return true;
         }
 
