@@ -25,16 +25,17 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object object) throws Exception {
 
-        // 如果不是映射到方法直接通过
+        // 判断对象是否是映射到一个方法，如果不是则直接通过
         if (!(object instanceof HandlerMethod)) {
+            // instanceof运算符是用来在运行时指出对象是否是特定类的一个实例
             return true;
         }
         HandlerMethod handlerMethod = (HandlerMethod) object;
         Method method = handlerMethod.getMethod();
-        //检查是否有NeedLogin注释，无则跳过认证
+        //检查方法是否有NeedLogin注解，无则跳过认证
         if (method.isAnnotationPresent(NeedLogin.class)) {
-            NeedLogin userLoginToken = method.getAnnotation(NeedLogin.class);
-            if (userLoginToken.required()) {
+            NeedLogin needLogin = method.getAnnotation(NeedLogin.class);
+            if (needLogin.required()) {
                 // 从HTTP请求头中获取TOKEN信息
                 String token = httpServletRequest.getHeader("Authorization");
 
@@ -77,6 +78,11 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 
     /**
      * 检查TOKEN
+     *
+     * @param token token
+     *              要校验的token
+     * @return boolean
+     * true:通过 false:失败
      */
     private boolean checkToken(String token) {
         // ------------------------认证------------开始-----------------
