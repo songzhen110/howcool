@@ -3,6 +3,8 @@ package com.songzhen.howcool.auth;
 import com.alibaba.fastjson.JSON;
 import com.songzhen.howcool.model.enums.RetCodeEnum;
 import com.songzhen.howcool.util.JwtUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.method.HandlerMethod;
@@ -14,8 +16,15 @@ import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-
+/**
+ * 认证拦截器
+ *
+ * @author lucas 2018-07-28
+ */
 public class AuthenticationInterceptor implements HandlerInterceptor {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthenticationInterceptor.class);
+    private static long beginTime = 0;
 
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
@@ -26,7 +35,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
      */
     @Override
     public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object object) throws Exception {
-
+        beginTime = System.currentTimeMillis();
         // 判断对象是否是映射到一个方法，如果不是则直接通过
         if (!(object instanceof HandlerMethod)) {
             // instanceof运算符是用来在运行时指出对象是否是特定类的一个实例
@@ -83,6 +92,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
      */
     @Override
     public void afterCompletion(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object o, Exception e) throws Exception {
+        logger.info("Method execution takes {} ms",System.currentTimeMillis() - beginTime);
     }
 
     /**

@@ -31,7 +31,7 @@ public class MyJobHandler extends IJobHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(MyJobHandler.class);
 
-    @Value("${videoPath}")
+    @Value("${video.path}")
     private String videoPath;
 
     @Override
