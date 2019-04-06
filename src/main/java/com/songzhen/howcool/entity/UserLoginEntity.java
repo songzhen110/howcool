@@ -12,6 +12,8 @@ public class UserLoginEntity {
     private String userName;
     private String password;
     private String deviceId;
+    private String captchaId;
+    private String captchaCode;
 
     public String getUserName() {
         return userName;
@@ -37,12 +39,30 @@ public class UserLoginEntity {
         this.deviceId = deviceId;
     }
 
+    public String getCaptchaId() {
+        return captchaId;
+    }
+
+    public void setCaptchaId(String captchaId) {
+        this.captchaId = captchaId;
+    }
+
+    public String getCaptchaCode() {
+        return captchaCode;
+    }
+
+    public void setCaptchaCode(String captchaCode) {
+        this.captchaCode = captchaCode;
+    }
+
     @Override
     public String toString() {
         return "UserLoginEntity{" +
                 "userName='" + userName + '\'' +
                 ", password='" + password + '\'' +
                 ", deviceId='" + deviceId + '\'' +
+                ", captchaId='" + captchaId + '\'' +
+                ", captchaCode='" + captchaCode + '\'' +
                 '}';
     }
 }
