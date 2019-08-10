@@ -25,11 +25,11 @@ import org.springframework.stereotype.Component;
  *
  * @author xuxueli 2015-12-19 19:43:36
  */
-@JobHandler(value = "myJobHandler")
+@JobHandler(value = "alarmClockJobHandler")
 @Component
-public class MyJobHandler extends IJobHandler {
+public class AlarmClockJobHandler extends IJobHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(MyJobHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(AlarmClockJobHandler.class);
 
     @Value("${video.path}")
     private String videoPath;
@@ -39,7 +39,7 @@ public class MyJobHandler extends IJobHandler {
 
         long now = System.currentTimeMillis();
         if (logger.isDebugEnabled()) {
-            logger.debug(">>>>>>>>>>> {}", DateUtil.now() + " myJobHandler start ...");
+            logger.debug(">>>>>>>>>>> {}", DateUtil.now() + " alarmClockJobHandler start ...");
         }
 
         if (FileUtil.exist(videoPath)) {
@@ -47,7 +47,7 @@ public class MyJobHandler extends IJobHandler {
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug(">>>>>>>>>>> myJobHandler consume {} ms", System.currentTimeMillis() - now);
+            logger.debug(">>>>>>>>>>> alarmClockJobHandler consume {} ms", System.currentTimeMillis() - now);
         }
 
         return new ReturnT<>(JobRetCodeEnum.SUCCESS_CODE.getValue(), JobRetCodeEnum.SUCCESS_CODE.getTitle());

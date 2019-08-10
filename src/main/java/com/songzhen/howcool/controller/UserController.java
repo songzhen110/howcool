@@ -37,6 +37,8 @@ public class UserController {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
+    private static final String CAPTCHA_ID_PREFIX = "CAPTCHA_ID";
+
     @Autowired
     private UserBizService userBizService;
 
@@ -119,8 +121,20 @@ public class UserController {
     @GetMapping("getCaptcha")
     public Map<String, Object> getCaptcha(HttpServletRequest request, HttpServletResponse response) {
         logger.info("getCaptcha start ...");
+        String captchaId = StringUtils.isEmpty(request.getParameter("captchaId")) ? "" : request.getParameter("captchaId");
+
         // 存放返回数据
         HashMap<String, Object> retMap = Maps.newHashMap();
+
+        // 查询缓存中captchaId是否存在，不存在则存在风险，请重新获取captchaId
+        boolean captchaInRedis = redisTemplate.opsForHash().hasKey(CAPTCHA_ID_PREFIX, captchaId);
+
+        if (!captchaInRedis) {
+            retMap.put("code", "03");
+            retMap.put("msg", "验证码ID已过期");
+            return retMap;
+        }
+
         //定义图形验证码的长、宽、验证码字符数、干扰线宽度
         ShearCaptcha captcha = CaptchaUtil.createShearCaptcha(200, 100, 4, 4);
         //图形验证码写出，可以写出到文件，也可以写出到流
@@ -130,9 +144,29 @@ public class UserController {
             logger.error("createCaptcha have a exception{}", e);
         }
 
+        redisTemplate.opsForValue().set(captchaId, captcha.getCode(), 60, TimeUnit.SECONDS);
+
+        retMap.put("code", "00");
+        retMap.put("captchaId", captchaId);
+
+        return retMap;
+    }
+
+    /**
+     * 生成图形验证码Id.
+     *
+     * @date 19:49 2019/4/6
+     */
+    @GetMapping("getCaptchaId")
+    public Map<String, Object> getCaptchaId(HttpServletRequest request, HttpServletResponse response) {
+        logger.info("getCaptchaId start ...");
+        // 存放返回数据
+        HashMap<String, Object> retMap = Maps.newHashMap();
+
         String captchaId = UUID.randomUUID().toString().replace("-", "").toLowerCase();
 
-        redisTemplate.opsForValue().set(captchaId, captcha.getCode(), 1, TimeUnit.MINUTES);
+        redisTemplate.opsForHash().put(CAPTCHA_ID_PREFIX, captchaId, captchaId);
+        redisTemplate.expire(CAPTCHA_ID_PREFIX, 30, TimeUnit.DAYS);
 
         retMap.put("code", "00");
         retMap.put("captchaId", captchaId);

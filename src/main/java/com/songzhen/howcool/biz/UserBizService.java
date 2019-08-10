@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 /**
  * 用户相关.
@@ -37,6 +38,8 @@ import java.util.concurrent.TimeUnit;
 public class UserBizService {
 
     private static final Logger logger = LoggerFactory.getLogger(UserBizService.class);
+
+    private static final String MOBILE_REGEX = "^[1]([3-9])[0-9]{9}$";
 
     @Autowired
     private UserService userService;
@@ -90,12 +93,18 @@ public class UserBizService {
 
     public Map<String, Object> login(String userName, String password, String deviceId) {
         logger.info("login input params userName={}, deviceId={}", userName, deviceId);
+
         // 存放返回数据
         HashMap<String, Object> retMap = Maps.newHashMap();
 
         EntityWrapper<UserModel> userModelWrapper = new EntityWrapper<>();
         userModelWrapper.setSqlSelect("u_id", "user_name", "password", "mobile", "email");
-        userModelWrapper.eq("mobile", userName).eq("is_delete", 0).eq("status", 1);
+        userModelWrapper.eq("is_delete", 0).eq("status", 1);
+        if(Pattern.matches(MOBILE_REGEX,userName)){
+            userModelWrapper.eq("mobile", userName);
+        }else{
+            userModelWrapper.eq("user_name", userName);
+        }
 
         UserModel userModel = userService.selectOne(userModelWrapper);
 
