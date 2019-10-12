@@ -15,10 +15,10 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 public class HBaseConfig {
-    @Value("${HBase.nodes}")
+    @Value("${hbase.nodes}")
     private String nodes;
 
-    @Value("${HBase.maxsize}")
+    @Value("${hbase.maxsize}")
     private String maxsize;
 
     @Bean

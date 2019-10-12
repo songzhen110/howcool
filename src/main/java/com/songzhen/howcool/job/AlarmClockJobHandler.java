@@ -38,17 +38,14 @@ public class AlarmClockJobHandler extends IJobHandler {
     public ReturnT<String> execute(String param) throws Exception {
 
         long now = System.currentTimeMillis();
-        if (logger.isDebugEnabled()) {
-            logger.debug(">>>>>>>>>>> {}", DateUtil.now() + " alarmClockJobHandler start ...");
-        }
+
+        logger.debug(">>>>>>>>>>> {}", DateUtil.now() + " alarmClockJobHandler start ...");
 
         if (FileUtil.exist(videoPath)) {
             new Player(new FileReader(videoPath).getInputStream()).play();
         }
 
-        if (logger.isDebugEnabled()) {
-            logger.debug(">>>>>>>>>>> alarmClockJobHandler consume {} ms", System.currentTimeMillis() - now);
-        }
+        logger.debug(">>>>>>>>>>> alarmClockJobHandler consume {} ms", System.currentTimeMillis() - now);
 
         return new ReturnT<>(JobRetCodeEnum.SUCCESS_CODE.getValue(), JobRetCodeEnum.SUCCESS_CODE.getTitle());
     }
