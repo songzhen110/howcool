@@ -98,7 +98,7 @@ public class UserBizService {
         HashMap<String, Object> retMap = Maps.newHashMap();
 
         EntityWrapper<UserModel> userModelWrapper = new EntityWrapper<>();
-        userModelWrapper.setSqlSelect("u_id", "user_name", "password", "mobile", "email");
+        userModelWrapper.setSqlSelect("id", "u_id", "user_name", "password", "mobile", "email");
         userModelWrapper.eq("is_delete", 0).eq("status", 1);
         if(Pattern.matches(MOBILE_REGEX,userName)){
             userModelWrapper.eq("mobile", userName);

@@ -22,10 +22,10 @@ public class HBaseConfig {
     private String maxsize;
 
     @Bean
-    public HBaseService getHbaseService(){
+    public HBaseService getHbaseService() {
         org.apache.hadoop.conf.Configuration conf = HBaseConfiguration.create();
-        conf.set("hbase.zookeeper.quorum",nodes );
-        conf.set("hbase.client.keyvalue.maxsize",maxsize);
+        conf.set("hbase.zookeeper.quorum", nodes);
+        conf.set("hbase.client.keyvalue.maxsize", maxsize);
 
         return new HBaseService(conf);
     }

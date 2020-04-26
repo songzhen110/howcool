@@ -37,7 +37,7 @@ dependencies {
     compile('com.alibaba:druid-spring-boot-starter:1.1.10')
 
     //xxl-job
-    compile 'com.xuxueli:xxl-job-core:2.0.1'
+    compile('com.xuxueli:xxl-job-core:2.1.2')
     //player
     compile 'javazoom:jlayer:1.0.1'
 

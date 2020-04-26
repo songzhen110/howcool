@@ -2,7 +2,7 @@
 <configuration>
 
     <property resource="application.properties"/>
-    <property name="LOG_HOME" value="/opt/logs/${git.name}" />
+    <property name="LOG_HOME" value="/Users/lucas/Downloads/data/applogs/${git.name}" />
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
