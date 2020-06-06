@@ -49,7 +49,7 @@ public class UserBizService {
 
     /**
      * 注册账号.
-     * ＜p＞s注册账号＜br＞
+     * ＜p＞注册账号＜br＞
      * s注册账号
      *
      * @return Map<String   ,   Object>

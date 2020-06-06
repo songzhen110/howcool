@@ -7,6 +7,7 @@ import com.songzhen.howcool.auth.NeedLogin;
 import com.songzhen.howcool.biz.UserBizService;
 import com.songzhen.howcool.entity.QueryUserEntity;
 import com.songzhen.howcool.entity.UserLoginEntity;
+import com.songzhen.howcool.task.DemoTaskThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 /**
  * 用户相关.
@@ -29,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  * 用户相关
  *
  * @author Lucas
- * @date 2018/8/9
+ * @since 2018/8/9
  */
 @RestController
 @RequestMapping("**/v1/user")
@@ -116,7 +118,7 @@ public class UserController {
     /**
      * 生成图形验证码.
      *
-     * @date 19:49 2019/4/6
+     * @since 19:49 2019/4/6
      */
     @GetMapping("getCaptcha")
     public Map<String, Object> getCaptcha(HttpServletRequest request, HttpServletResponse response) {
@@ -155,7 +157,7 @@ public class UserController {
     /**
      * 生成图形验证码Id.
      *
-     * @date 19:49 2019/4/6
+     * @since 19:49 2019/4/6
      */
     @GetMapping("getCaptchaId")
     public Map<String, Object> getCaptchaId(HttpServletRequest request, HttpServletResponse response) {
@@ -172,6 +174,40 @@ public class UserController {
         retMap.put("captchaId", captchaId);
 
         return retMap;
+    }
+
+    /**
+     * 并发访问轨迹服务
+     * @param tracks
+     * @return
+     * @throws Exception
+     */
+    private Map<String, String> getFormatAddress(List<Double> tracks) throws Exception {
+
+        Map<String, String> addressMap = Maps.newHashMap();
+
+        // 创建线程池
+        ExecutorService pool = Executors.newCachedThreadPool();
+        BlockingQueue<Future<Object>> queue = new LinkedBlockingQueue<>();
+
+        // 扔任务到线程池
+        for (int i = 0; i < tracks.size(); i++) {
+            Double track = tracks.get(i);
+            Future<Object> future = pool.submit(new DemoTaskThread(track, track));
+            queue.add(future);
+        }
+
+        // 获取任务执行结果
+        for (int i = 0; i < tracks.size(); i++) {
+            Object address = queue.take().get();
+            logger.info("query address result {}", address);
+
+        }
+
+        // 用完关闭线程池
+        pool.shutdown();
+
+        return addressMap;
     }
 
 }

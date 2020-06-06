@@ -1,12 +1,13 @@
 package com.songzhen.howcool.auth;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.songzhen.howcool.model.enums.RetCodeEnum;
 import com.songzhen.howcool.util.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -27,7 +28,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     private static long beginTime = 0;
 
     @Autowired
-    private RedisTemplate<String, String> redisTemplate;
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 预处理回调方法，实现处理器的预处理（如检查登陆），第三个参数为响应的处理器，自定义Controller
@@ -43,7 +44,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         }
         HandlerMethod handlerMethod = (HandlerMethod) object;
         Method method = handlerMethod.getMethod();
-        //检查方法是否有NeedLogin注解，无则跳过认证
+        // 检查方法是否有NeedLogin注解，无则跳过认证
         if (method.isAnnotationPresent(NeedLogin.class)) {
             NeedLogin needLogin = method.getAnnotation(NeedLogin.class);
             if (needLogin.required()) {
@@ -104,17 +105,23 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
      * true:通过 false:失败
      */
     private boolean checkToken(String token) {
+
         // ------------------------认证------------开始-----------------
-        if (null == token) {
+        if (StrUtil.isBlank(token)) {
             return false;
         }
 
         // 获取TOKEN中的用户信息
         String uid = JwtUtil.getUid(token);
 
+        // 检查TOKEN是否合法
+        if(StrUtil.isBlank(uid)){
+           return false;
+        }
+
         // 根据uid从redis中获取用户tokenInRedis
-        String tokenInRedis = redisTemplate.opsForValue().get(uid);
-        if (null == tokenInRedis) {
+        String tokenInRedis = stringRedisTemplate.opsForValue().get(uid);
+        if (StrUtil.isBlank(tokenInRedis)) {
             // 如果REDIS异常，返回成功保证正常业务可以继续处理
             return true;
         }
@@ -130,21 +137,19 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         String deviceIdInRedis = JwtUtil.getDeviceId(tokenInRedis);
         long expireInInRedis = JwtUtil.getExpireIn(tokenInRedis);
 
-        if (null == userName || null == realName || null == deviceId) {
+        if (StrUtil.isBlank(userName) || StrUtil.isBlank(realName) || StrUtil.isBlank(deviceId)) {
             return false;
         }
-        if (null == userNameInRedis || null == realNameInRedis || null == deviceIdInRedis) {
+        if (StrUtil.isBlank(userNameInRedis) || StrUtil.isBlank(realNameInRedis) || StrUtil.isBlank(deviceIdInRedis)) {
             return false;
         }
         // 判断TOKEN是否过期
         if (expireIn != expireInInRedis) {
             return false;
         }
-        if (expireIn < System.currentTimeMillis()) {
-            return false;
-        }
+        // 判断TOKEN是否过期
+        return expireIn >= System.currentTimeMillis();
         // ------------------------认证------------结束-----------------
-        return true;
     }
 
 }

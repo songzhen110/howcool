@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
  * HBase相关配置
  *
  * @author zifangsky
- * @date 2018/7/12
- * @since 1.0.0
+ * @version 1.0.0
+ * @since 2018/7/12
  */
 @Configuration
 public class HBaseConfig {
