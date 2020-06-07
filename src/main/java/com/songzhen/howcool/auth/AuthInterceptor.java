@@ -22,9 +22,9 @@ import java.util.Map;
  *
  * @author lucas 2018-07-28
  */
-public class AuthenticationInterceptor implements HandlerInterceptor {
+public class AuthInterceptor implements HandlerInterceptor {
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticationInterceptor.class);
+    private static final Logger logger = LoggerFactory.getLogger(AuthInterceptor.class);
     private static long beginTime = 0;
 
     @Autowired
@@ -116,7 +116,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 
         // 检查TOKEN是否合法
         if(StrUtil.isBlank(uid)){
-           return false;
+            return false;
         }
 
         // 根据uid从redis中获取用户tokenInRedis
