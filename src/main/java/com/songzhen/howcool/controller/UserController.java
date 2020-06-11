@@ -143,7 +143,7 @@ public class UserController {
         try (ServletOutputStream outputStream = response.getOutputStream()) {
             captcha.write(outputStream);
         } catch (IOException e) {
-            logger.error("createCaptcha have a exception{}", e);
+            logger.error("createCaptcha have a exception", e);
         }
 
         redisTemplate.opsForValue().set(captchaId, captcha.getCode(), 60, TimeUnit.SECONDS);
