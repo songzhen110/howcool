@@ -52,7 +52,7 @@ public class UserBizService {
      * ＜p＞注册账号＜br＞
      * s注册账号
      *
-     * @return Map<String   ,   Object>
+     * @return Map<String, Object>
      * @author Lucas
      * @date 2019-03-18
      */
@@ -85,10 +85,8 @@ public class UserBizService {
      * @date 2019-03-17
      */
     private boolean checkIsExistUId(String uId) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("uId = {}", uId);
-        }
-        return userService.selectCount(new EntityWrapper<UserModel>().eq("u_id", "HC20190317192731")) != 0;
+        logger.info("checkIsExistUId uId = {}", uId);
+        return userService.selectCount(new EntityWrapper<UserModel>().eq("u_id", uId)) != 0;
     }
 
     public Map<String, Object> login(String userName, String password, String deviceId) {
