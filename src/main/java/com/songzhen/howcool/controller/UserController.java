@@ -87,6 +87,8 @@ public class UserController {
             retMap.put("msg", "验证码错误");
             return retMap;
         }
+        //图形验证码验证通过后马上失效（保证一张验证码，只能使用一次）
+        redisTemplate.delete(captchaId);
 
         return userBizService.login(userLoginEntity.getUserName(), userLoginEntity.getPassword(), userLoginEntity.getDeviceId());
     }
@@ -123,7 +125,12 @@ public class UserController {
     @GetMapping("getCaptcha")
     public Map<String, Object> getCaptcha(HttpServletRequest request, HttpServletResponse response) {
         logger.info("getCaptcha start ...");
-        String captchaId = StringUtils.isEmpty(request.getParameter("captchaId")) ? "" : request.getParameter("captchaId");
+        String captchaId = request.getParameter("captchaId"));
+        if (StringUtils.isEmpty(captchaId)) {
+            retMap.put("code", "03");
+            retMap.put("msg", "验证码ID不能为空");
+            return retMap;
+        }
 
         // 存放返回数据
         HashMap<String, Object> retMap = Maps.newHashMap();
@@ -147,6 +154,9 @@ public class UserController {
         }
 
         redisTemplate.opsForValue().set(captchaId, captcha.getCode(), 60, TimeUnit.SECONDS);
+        
+        //验证码ID使用后马上销毁
+        redisTemplate.opsForHash().delete(CAPTCHA_ID_PREFIX, captchaId);
 
         retMap.put("code", "00");
         retMap.put("captchaId", captchaId);
@@ -168,7 +178,7 @@ public class UserController {
         String captchaId = UUID.randomUUID().toString().replace("-", "").toLowerCase();
 
         redisTemplate.opsForHash().put(CAPTCHA_ID_PREFIX, captchaId, captchaId);
-        redisTemplate.expire(CAPTCHA_ID_PREFIX, 30, TimeUnit.DAYS);
+        redisTemplate.expire(CAPTCHA_ID_PREFIX, 75, TimeUnit.SECONDS);
 
         retMap.put("code", "00");
         retMap.put("captchaId", captchaId);
