@@ -19,10 +19,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -62,14 +59,20 @@ public class UserController {
         // 存放返回数据
         HashMap<String, Object> retMap = Maps.newHashMap();
 
-        if (StringUtils.isEmpty(userName) || StringUtils.isEmpty(password)) {
+        if(StringUtils.isEmpty(deviceId)){
             retMap.put("code", "01");
+            retMap.put("msg", "设备ID不能为空");
+            return retMap;
+        }
+
+        if (StringUtils.isEmpty(userName) || StringUtils.isEmpty(password)) {
+            retMap.put("code", "02");
             retMap.put("msg", "用户名和密码不能为空");
             return retMap;
         }
 
         if (StringUtils.isEmpty(captchaId) || StringUtils.isEmpty(captchaCode)) {
-            retMap.put("code", "02");
+            retMap.put("code", "03");
             retMap.put("msg", "图形验证码ID和图形验证码内容不能为空");
             return retMap;
         }
@@ -78,13 +81,13 @@ public class UserController {
         String captchaCodeInRedis = Objects.toString(redisTemplate.opsForHash().get(CAPTCHA_ID_PREFIX,captchaId),"");
 
         if (StringUtils.isEmpty(captchaCodeInRedis)) {
-            retMap.put("code", "03");
+            retMap.put("code", "04");
             retMap.put("msg", "验证码已过期");
             return retMap;
         }
         //验证图形验证码的有效性
         if (!captchaCodeInRedis.equals(captchaCode)) {
-            retMap.put("code", "03");
+            retMap.put("code", "05");
             retMap.put("msg", "验证码错误");
             return retMap;
         }
@@ -102,6 +105,7 @@ public class UserController {
      */
     @NeedLogin
     @PostMapping("logout")
+    @SuppressWarnings("all")
     public Map<String, Object> logout(HttpServletRequest request) {
         Map<String, Object> currentUser = (Map<String, Object>) request.getAttribute("currentUser");
 
@@ -126,21 +130,22 @@ public class UserController {
     @GetMapping("getCaptcha")
     public Map<String, Object> getCaptcha(HttpServletRequest request, HttpServletResponse response) {
         logger.info("getCaptcha start ...");
-        String captchaId = request.getParameter("captchaId"));
-        if (StringUtils.isEmpty(captchaId)) {
-            retMap.put("code", "03");
-            retMap.put("msg", "验证码ID不能为空");
-            return retMap;
-        }
+        String captchaId = request.getParameter("captchaId");
 
         // 存放返回数据
         HashMap<String, Object> retMap = Maps.newHashMap();
+
+        if (StringUtils.isEmpty(captchaId)) {
+            retMap.put("code", "01");
+            retMap.put("msg", "验证码ID不能为空");
+            return retMap;
+        }
 
         // 查询缓存中captchaId是否存在，不存在则存在风险，请重新获取captchaId
         boolean captchaInRedis = redisTemplate.opsForHash().hasKey(CAPTCHA_ID_PREFIX, captchaId);
 
         if (!captchaInRedis) {
-            retMap.put("code", "03");
+            retMap.put("code", "02");
             retMap.put("msg", "验证码ID已过期");
             return retMap;
         }
@@ -169,7 +174,7 @@ public class UserController {
      * @since 19:49 2019/4/6
      */
     @GetMapping("getCaptchaId")
-    public Map<String, Object> getCaptchaId(HttpServletRequest request, HttpServletResponse response) {
+    public Map<String, Object> getCaptchaId() {
         logger.info("getCaptchaId start ...");
         // 存放返回数据
         HashMap<String, Object> retMap = Maps.newHashMap();
@@ -191,6 +196,7 @@ public class UserController {
      * @return
      * @throws Exception
      */
+    @SuppressWarnings("all")
     private Map<String, String> getFormatAddress(List<Double> tracks) throws Exception {
 
         Map<String, String> addressMap = Maps.newHashMap();
@@ -200,17 +206,15 @@ public class UserController {
         BlockingQueue<Future<Object>> queue = new LinkedBlockingQueue<>();
 
         // 扔任务到线程池
-        for (int i = 0; i < tracks.size(); i++) {
-            Double track = tracks.get(i);
+        for (Double track : tracks) {
             Future<Object> future = pool.submit(new DemoTaskThread(track, track));
             queue.add(future);
         }
 
         // 获取任务执行结果
-        for (int i = 0; i < tracks.size(); i++) {
-            Object address = queue.take().get();
+        for (Future<Object> objectFuture : queue) {
+            Object address = objectFuture.get();
             logger.info("query address result {}", address);
-
         }
 
         // 用完关闭线程池
