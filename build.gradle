@@ -17,37 +17,39 @@ repositories {
 dependencies {
     //spring-boot-starter
     implementation 'org.springframework.boot:spring-boot-starter'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     //spring-boot-starter-web
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
     //工具库
-    compile 'com.google.guava:guava:27.0.1-jre'
-    compile 'cn.hutool:hutool-all:4.1.19'
-    compile 'com.alibaba:fastjson:1.2.47'
+    implementation 'com.google.guava:guava:27.0.1-jre'
+    implementation 'cn.hutool:hutool-all:4.1.19'
+    implementation 'com.alibaba:fastjson:1.2.47'
 
     //logging
     implementation 'org.springframework.boot:spring-boot-starter-logging'
 
     //mysql
-    compile('mysql:mysql-connector-java:5.1.46')
+    implementation 'mysql:mysql-connector-java:5.1.46'
 
     //数据库支持
-    compile('com.baomidou:mybatis-plus-boot-starter:2.3')
-    compile('com.alibaba:druid-spring-boot-starter:1.1.10')
+    implementation 'com.baomidou:mybatis-plus-boot-starter:2.3'
+    implementation 'com.alibaba:druid-spring-boot-starter:1.1.10'
 
     //xxl-job
-    compile('com.xuxueli:xxl-job-core:2.1.2')
+    implementation('com.xuxueli:xxl-job-core:2.1.2')
     //player
-    compile 'javazoom:jlayer:1.0.1'
+    implementation 'javazoom:jlayer:1.0.1'
 
     //redis
-    compile 'org.apache.commons:commons-pool2'
-    compile 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.apache.commons:commons-pool2'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     //jsonWebToken
-    compile 'io.jsonwebtoken:jjwt:0.9.0'
+    implementation 'io.jsonwebtoken:jjwt:0.9.0'
 
     //HBASE
-    compile 'org.apache.hbase:hbase-client:2.0.5'
+    implementation 'org.apache.hbase:hbase-client:2.0.5'
+    //TEST
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'junit:junit:4.12'
 }
