@@ -25,7 +25,7 @@ import java.util.Map;
 public class AuthInterceptor implements HandlerInterceptor {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthInterceptor.class);
-    private static long beginTime = 0;
+    private long beginTime = 0;
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
@@ -85,6 +85,7 @@ public class AuthInterceptor implements HandlerInterceptor {
      */
     @Override
     public void postHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, Object object, ModelAndView modelAndView) throws Exception {
+        logger.info("Method execution takes {} ms",System.currentTimeMillis() - beginTime);
     }
 
     /**

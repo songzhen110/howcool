@@ -7,6 +7,7 @@ import com.songzhen.howcool.auth.NeedLogin;
 import com.songzhen.howcool.biz.UserBizService;
 import com.songzhen.howcool.entity.QueryUserEntity;
 import com.songzhen.howcool.entity.UserLoginEntity;
+import com.songzhen.howcool.entity.UserRegisterEntity;
 import com.songzhen.howcool.task.DemoTaskThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,7 @@ public class UserController {
     private RedisTemplate<String, String> redisTemplate;
 
     /**
-     * 登录
+     * 用户登录
      */
     @PostMapping("login")
     public Map<String, Object> login(@RequestBody UserLoginEntity userLoginEntity) {
@@ -95,6 +96,22 @@ public class UserController {
         redisTemplate.opsForHash().delete(CAPTCHA_ID_PREFIX,captchaId);
 
         return userBizService.login(userLoginEntity.getUserName(), userLoginEntity.getPassword(), userLoginEntity.getDeviceId());
+    }
+
+    /**
+     * 用户注册
+     */
+    @PostMapping("register")
+    public Map<String,String> regUser(@RequestBody UserRegisterEntity userRegisterEntity){
+        logger.info("regUser input params userRegisterEntity={}", userRegisterEntity);
+        String userName = userRegisterEntity.getUserName();
+        String password = userRegisterEntity.getPassword();
+        String mobile = userRegisterEntity.getMobile();
+        String email = userRegisterEntity.getEmail();
+
+        userBizService.addUser(userName,password,mobile,email);
+
+        return null;
     }
 
 

@@ -29,7 +29,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-logging'
 
     //mysql
-    implementation 'mysql:mysql-connector-java:5.1.46'
+    implementation 'mysql:mysql-connector-java:8.0.21'
 
     //数据库支持
     implementation 'com.baomidou:mybatis-plus-boot-starter:2.3'

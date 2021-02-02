@@ -2,6 +2,7 @@ package com.songzhen.howcool.biz;
 
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.google.common.collect.Maps;
@@ -56,18 +57,18 @@ public class UserBizService {
      * @author Lucas
      * @date 2019-03-18
      */
-    public Map<String, Object> addUser() {
+    public Map<String, Object> addUser(String userName,String password,String mobile,String email) {
 
         String uId = Application.USER_ID_PREFIX + DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN);
 
         if (!checkIsExistUId(uId)) {
             UserModel model = new UserModel();
             model.setUId(uId);
-            model.setUserName("zhangsan001");
-            model.setPassword(Md5Util.encodeMD5(Application.USER_DEFAULT_PASSWORD));
+            model.setUserName(userName);
+            model.setPassword(StrUtil.isBlank(password)?Md5Util.encodeMD5(Application.USER_DEFAULT_PASSWORD):Md5Util.encodeMD5(password));
             model.setStatus((byte) 1);
-            model.setMobile("17211111112");
-            model.setEmail("xiaoling@126.com");
+            model.setMobile(mobile);
+            model.setEmail(email);
             model.setCreateBy("admin");
             model.setUpdateBy("admin");
             userService.insert(model);
