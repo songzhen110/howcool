@@ -18,15 +18,14 @@ public class HBaseConfig {
     @Value("${hbase.nodes}")
     private String nodes;
 
-    @Value("${hbase.maxsize}")
+    @Value("${hbase.client.keyvalue.maxsize}")
     private String maxsize;
 
     @Bean
-    public HBaseService getHbaseService() {
+    public HBaseService getHBaseService() {
         org.apache.hadoop.conf.Configuration conf = HBaseConfiguration.create();
         conf.set("hbase.zookeeper.quorum", nodes);
         conf.set("hbase.client.keyvalue.maxsize", maxsize);
-
         return new HBaseService(conf);
     }
 }
