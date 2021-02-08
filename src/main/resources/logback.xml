@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <property name="LOG_HOME" value="/opt/logs/${git.name}" />
+    <property resource="application.properties"/>
+    <property name="LOG_HOME" value="/Users/lucas/Documents/data/applogs/${git.name}" />
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>

@@ -2,6 +2,7 @@ package com.songzhen.howcool.biz;
 
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.google.common.collect.Maps;
@@ -49,25 +50,25 @@ public class UserBizService {
 
     /**
      * 注册账号.
-     * ＜p＞s注册账号＜br＞
+     * ＜p＞注册账号＜br＞
      * s注册账号
      *
-     * @return Map<String   ,   Object>
+     * @return Map<String, Object>
      * @author Lucas
      * @date 2019-03-18
      */
-    public Map<String, Object> addUser() {
+    public Map<String, Object> addUser(String userName,String password,String mobile,String email) {
 
         String uId = Application.USER_ID_PREFIX + DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN);
 
         if (!checkIsExistUId(uId)) {
             UserModel model = new UserModel();
             model.setUId(uId);
-            model.setUserName("zhangsan001");
-            model.setPassword(Md5Util.encodeMD5(Application.USER_DEFAULT_PASSWORD));
+            model.setUserName(userName);
+            model.setPassword(StrUtil.isBlank(password)?Md5Util.encodeMD5(Application.USER_DEFAULT_PASSWORD):Md5Util.encodeMD5(password));
             model.setStatus((byte) 1);
-            model.setMobile("17211111112");
-            model.setEmail("xiaoling@126.com");
+            model.setMobile(mobile);
+            model.setEmail(email);
             model.setCreateBy("admin");
             model.setUpdateBy("admin");
             userService.insert(model);
@@ -85,10 +86,8 @@ public class UserBizService {
      * @date 2019-03-17
      */
     private boolean checkIsExistUId(String uId) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("uId = {}", uId);
-        }
-        return userService.selectCount(new EntityWrapper<UserModel>().eq("u_id", "HC20190317192731")) != 0;
+        logger.info("checkIsExistUId uId = {}", uId);
+        return userService.selectCount(new EntityWrapper<UserModel>().eq("u_id", uId)) != 0;
     }
 
     public Map<String, Object> login(String userName, String password, String deviceId) {
@@ -98,7 +97,7 @@ public class UserBizService {
         HashMap<String, Object> retMap = Maps.newHashMap();
 
         EntityWrapper<UserModel> userModelWrapper = new EntityWrapper<>();
-        userModelWrapper.setSqlSelect("u_id", "user_name", "password", "mobile", "email");
+        userModelWrapper.setSqlSelect("id", "u_id", "user_name", "password", "mobile", "email");
         userModelWrapper.eq("is_delete", 0).eq("status", 1);
         if(Pattern.matches(MOBILE_REGEX,userName)){
             userModelWrapper.eq("mobile", userName);

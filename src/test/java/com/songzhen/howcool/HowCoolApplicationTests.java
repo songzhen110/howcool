@@ -16,9 +16,9 @@ import java.util.Map;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class HowcoolApplicationTests {
+public class HowCoolApplicationTests {
 
-	private static final Logger logger = LoggerFactory.getLogger(HowcoolApplicationTests.class);
+	private static final Logger logger = LoggerFactory.getLogger(HowCoolApplicationTests.class);
 
 	@Autowired
 	private UserBizService userBizService;
@@ -33,7 +33,7 @@ public class HowcoolApplicationTests {
 
 	@Test
 	public void userRegister() {
-		userBizService.addUser();
+		userBizService.addUser(null,null,null,null);
 	}
 
 	@Test

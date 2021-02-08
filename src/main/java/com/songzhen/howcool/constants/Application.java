@@ -8,7 +8,7 @@ import cn.hutool.core.date.format.FastDateFormat;
  * 应用常量
  *
  * @author Lucas
- * @date 2019/3/17
+ * @since 2019/3/17
  */
 public class Application {
 

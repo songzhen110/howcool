@@ -7,6 +7,8 @@ import com.songzhen.howcool.auth.NeedLogin;
 import com.songzhen.howcool.biz.UserBizService;
 import com.songzhen.howcool.entity.QueryUserEntity;
 import com.songzhen.howcool.entity.UserLoginEntity;
+import com.songzhen.howcool.entity.UserRegisterEntity;
+import com.songzhen.howcool.task.DemoTaskThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +20,8 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * 用户相关.
@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
  * 用户相关
  *
  * @author Lucas
- * @date 2018/8/9
+ * @since 2018/8/9
  */
 @RestController
 @RequestMapping("**/v1/user")
@@ -46,7 +46,7 @@ public class UserController {
     private RedisTemplate<String, String> redisTemplate;
 
     /**
-     * 登录
+     * 用户登录
      */
     @PostMapping("login")
     public Map<String, Object> login(@RequestBody UserLoginEntity userLoginEntity) {
@@ -60,33 +60,58 @@ public class UserController {
         // 存放返回数据
         HashMap<String, Object> retMap = Maps.newHashMap();
 
-        if (StringUtils.isEmpty(userName) || StringUtils.isEmpty(password)) {
+        if(StringUtils.isEmpty(deviceId)){
             retMap.put("code", "01");
+            retMap.put("msg", "设备ID不能为空");
+            return retMap;
+        }
+
+        if (StringUtils.isEmpty(userName) || StringUtils.isEmpty(password)) {
+            retMap.put("code", "02");
             retMap.put("msg", "用户名和密码不能为空");
             return retMap;
         }
 
         if (StringUtils.isEmpty(captchaId) || StringUtils.isEmpty(captchaCode)) {
-            retMap.put("code", "02");
+            retMap.put("code", "03");
             retMap.put("msg", "图形验证码ID和图形验证码内容不能为空");
             return retMap;
         }
 
-        String captchaCodeInRedis = redisTemplate.opsForValue().get(captchaId);
+        @SuppressWarnings("all")
+        String captchaCodeInRedis = Objects.toString(redisTemplate.opsForHash().get(CAPTCHA_ID_PREFIX,captchaId),"");
 
         if (StringUtils.isEmpty(captchaCodeInRedis)) {
-            retMap.put("code", "03");
+            retMap.put("code", "04");
             retMap.put("msg", "验证码已过期");
             return retMap;
         }
         //验证图形验证码的有效性
         if (!captchaCodeInRedis.equals(captchaCode)) {
-            retMap.put("code", "03");
+            retMap.put("code", "05");
             retMap.put("msg", "验证码错误");
             return retMap;
         }
+        //图形验证码验证通过后马上失效（保证一张验证码，只能使用一次）
+        redisTemplate.opsForHash().delete(CAPTCHA_ID_PREFIX,captchaId);
 
         return userBizService.login(userLoginEntity.getUserName(), userLoginEntity.getPassword(), userLoginEntity.getDeviceId());
+    }
+
+    /**
+     * 用户注册
+     */
+    @PostMapping("register")
+    public Map<String,String> regUser(@RequestBody UserRegisterEntity userRegisterEntity){
+        logger.info("regUser input params userRegisterEntity={}", userRegisterEntity);
+        String userName = userRegisterEntity.getUserName();
+        String password = userRegisterEntity.getPassword();
+        String mobile = userRegisterEntity.getMobile();
+        String email = userRegisterEntity.getEmail();
+
+        userBizService.addUser(userName,password,mobile,email);
+
+        return null;
     }
 
 
@@ -97,6 +122,7 @@ public class UserController {
      */
     @NeedLogin
     @PostMapping("logout")
+    @SuppressWarnings("all")
     public Map<String, Object> logout(HttpServletRequest request) {
         Map<String, Object> currentUser = (Map<String, Object>) request.getAttribute("currentUser");
 
@@ -116,21 +142,27 @@ public class UserController {
     /**
      * 生成图形验证码.
      *
-     * @date 19:49 2019/4/6
+     * @since 19:49 2019/4/6
      */
     @GetMapping("getCaptcha")
     public Map<String, Object> getCaptcha(HttpServletRequest request, HttpServletResponse response) {
         logger.info("getCaptcha start ...");
-        String captchaId = StringUtils.isEmpty(request.getParameter("captchaId")) ? "" : request.getParameter("captchaId");
+        String captchaId = request.getParameter("captchaId");
 
         // 存放返回数据
         HashMap<String, Object> retMap = Maps.newHashMap();
+
+        if (StringUtils.isEmpty(captchaId)) {
+            retMap.put("code", "01");
+            retMap.put("msg", "验证码ID不能为空");
+            return retMap;
+        }
 
         // 查询缓存中captchaId是否存在，不存在则存在风险，请重新获取captchaId
         boolean captchaInRedis = redisTemplate.opsForHash().hasKey(CAPTCHA_ID_PREFIX, captchaId);
 
         if (!captchaInRedis) {
-            retMap.put("code", "03");
+            retMap.put("code", "02");
             retMap.put("msg", "验证码ID已过期");
             return retMap;
         }
@@ -141,10 +173,11 @@ public class UserController {
         try (ServletOutputStream outputStream = response.getOutputStream()) {
             captcha.write(outputStream);
         } catch (IOException e) {
-            logger.error("createCaptcha have a exception{}", e);
+            logger.error("createCaptcha have a exception", e);
         }
 
-        redisTemplate.opsForValue().set(captchaId, captcha.getCode(), 60, TimeUnit.SECONDS);
+        //更新存储验证码ID和真实验证码到REDIS
+        redisTemplate.opsForHash().put(CAPTCHA_ID_PREFIX, captchaId, captcha.getCode());
 
         retMap.put("code", "00");
         retMap.put("captchaId", captchaId);
@@ -155,23 +188,56 @@ public class UserController {
     /**
      * 生成图形验证码Id.
      *
-     * @date 19:49 2019/4/6
+     * @since 19:49 2019/4/6
      */
     @GetMapping("getCaptchaId")
-    public Map<String, Object> getCaptchaId(HttpServletRequest request, HttpServletResponse response) {
+    public Map<String, Object> getCaptchaId() {
         logger.info("getCaptchaId start ...");
         // 存放返回数据
         HashMap<String, Object> retMap = Maps.newHashMap();
 
         String captchaId = UUID.randomUUID().toString().replace("-", "").toLowerCase();
-
-        redisTemplate.opsForHash().put(CAPTCHA_ID_PREFIX, captchaId, captchaId);
-        redisTemplate.expire(CAPTCHA_ID_PREFIX, 30, TimeUnit.DAYS);
+        // 存储验证码ID和空字符验证码到REDIS
+        redisTemplate.opsForHash().put(CAPTCHA_ID_PREFIX, captchaId, "");
+        redisTemplate.expire(CAPTCHA_ID_PREFIX, 75, TimeUnit.SECONDS);
 
         retMap.put("code", "00");
         retMap.put("captchaId", captchaId);
 
         return retMap;
+    }
+
+    /**
+     * 并发访问轨迹服务
+     * @param tracks
+     * @return
+     * @throws Exception
+     */
+    @SuppressWarnings("all")
+    private Map<String, String> getFormatAddress(List<Double> tracks) throws Exception {
+
+        Map<String, String> addressMap = Maps.newHashMap();
+
+        // 创建线程池
+        ExecutorService pool = Executors.newCachedThreadPool();
+        BlockingQueue<Future<Object>> queue = new LinkedBlockingQueue<>();
+
+        // 扔任务到线程池
+        for (Double track : tracks) {
+            Future<Object> future = pool.submit(new DemoTaskThread(track, track));
+            queue.add(future);
+        }
+
+        // 获取任务执行结果
+        for (Future<Object> objectFuture : queue) {
+            Object address = objectFuture.get();
+            logger.info("query address result {}", address);
+        }
+
+        // 用完关闭线程池
+        pool.shutdown();
+
+        return addressMap;
     }
 
 }

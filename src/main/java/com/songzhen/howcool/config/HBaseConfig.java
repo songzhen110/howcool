@@ -10,23 +10,22 @@ import org.springframework.context.annotation.Configuration;
  * HBase相关配置
  *
  * @author zifangsky
- * @date 2018/7/12
- * @since 1.0.0
+ * @version 1.0.0
+ * @since 2018/7/12
  */
 @Configuration
 public class HBaseConfig {
-    @Value("${HBase.nodes}")
+    @Value("${hbase.nodes}")
     private String nodes;
 
-    @Value("${HBase.maxsize}")
+    @Value("${hbase.client.keyvalue.maxsize}")
     private String maxsize;
 
     @Bean
-    public HBaseService getHbaseService(){
+    public HBaseService getHBaseService() {
         org.apache.hadoop.conf.Configuration conf = HBaseConfiguration.create();
-        conf.set("hbase.zookeeper.quorum",nodes );
-        conf.set("hbase.client.keyvalue.maxsize",maxsize);
-
+        conf.set("hbase.zookeeper.quorum", nodes);
+        conf.set("hbase.client.keyvalue.maxsize", maxsize);
         return new HBaseService(conf);
     }
 }

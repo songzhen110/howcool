@@ -5,8 +5,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileReader;
 import com.songzhen.howcool.model.enums.JobRetCodeEnum;
 import com.xxl.job.core.biz.model.ReturnT;
-import com.xxl.job.core.handler.IJobHandler;
-import com.xxl.job.core.handler.annotation.JobHandler;
+import com.xxl.job.core.handler.annotation.XxlJob;
 import javazoom.jl.player.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,30 +24,26 @@ import org.springframework.stereotype.Component;
  *
  * @author xuxueli 2015-12-19 19:43:36
  */
-@JobHandler(value = "alarmClockJobHandler")
 @Component
-public class AlarmClockJobHandler extends IJobHandler {
+public class AlarmClockJobHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(AlarmClockJobHandler.class);
 
     @Value("${video.path}")
     private String videoPath;
 
-    @Override
+    @XxlJob("alarmClockJobHandler")
     public ReturnT<String> execute(String param) throws Exception {
 
         long now = System.currentTimeMillis();
-        if (logger.isDebugEnabled()) {
-            logger.debug(">>>>>>>>>>> {}", DateUtil.now() + " alarmClockJobHandler start ...");
-        }
+
+        logger.debug(">>>>>>>>>>> {}", DateUtil.now() + " alarmClockJobHandler start ...");
 
         if (FileUtil.exist(videoPath)) {
             new Player(new FileReader(videoPath).getInputStream()).play();
         }
 
-        if (logger.isDebugEnabled()) {
-            logger.debug(">>>>>>>>>>> alarmClockJobHandler consume {} ms", System.currentTimeMillis() - now);
-        }
+        logger.debug(">>>>>>>>>>> alarmClockJobHandler consume {} ms", System.currentTimeMillis() - now);
 
         return new ReturnT<>(JobRetCodeEnum.SUCCESS_CODE.getValue(), JobRetCodeEnum.SUCCESS_CODE.getTitle());
     }
