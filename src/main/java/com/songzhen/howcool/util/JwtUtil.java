@@ -151,7 +151,6 @@ public class JwtUtil {
 
         String jwt = "Bearer " + createJWT("1", new CurrentUser(), "{\"uId\":\"123\"}", System.currentTimeMillis() + 1000);
         logger.info("jwt={}", jwt);
-
         String uId = getUid(jwt);
         logger.info("uId={}", uId);
     }
