@@ -154,7 +154,5 @@ public class JwtUtil {
 
         String uId = getUid(jwt);
         logger.info("uId={}", uId);
-
-
     }
 }
