@@ -57,22 +57,24 @@ public class UserBizService {
      * @author Lucas
      * @date 2019-03-18
      */
-    public Map<String, Object> addUser(String userName,String password,String mobile,String email) {
+    public Map<String, Object> addUser(String userName, String password, String mobile, String email) {
 
         String uId = Application.USER_ID_PREFIX + DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN);
 
-        if (!checkIsExistUId(uId)) {
-            UserModel model = new UserModel();
-            model.setUId(uId);
-            model.setUserName(userName);
-            model.setPassword(StrUtil.isBlank(password)?Md5Util.encodeMD5(Application.USER_DEFAULT_PASSWORD):Md5Util.encodeMD5(password));
-            model.setStatus((byte) 1);
-            model.setMobile(mobile);
-            model.setEmail(email);
-            model.setCreateBy("admin");
-            model.setUpdateBy("admin");
-            userService.insert(model);
+        if (StrUtil.isBlank(userName) || StrUtil.isBlank(mobile) || StrUtil.isBlank(email) || checkIsExistUid(uId)) {
+            return Maps.newHashMap();
         }
+
+        UserModel model = new UserModel();
+        model.setUId(uId);
+        model.setUserName(userName);
+        model.setPassword(StrUtil.isBlank(password) ? Md5Util.encodeMD5(Application.USER_DEFAULT_PASSWORD) : Md5Util.encodeMD5(password));
+        model.setStatus((byte) 1);
+        model.setMobile(mobile);
+        model.setEmail(email);
+        model.setCreateBy("admin");
+        model.setUpdateBy("admin");
+        userService.insert(model);
 
         return Maps.newHashMap();
     }
@@ -85,7 +87,7 @@ public class UserBizService {
      * @author Lucas
      * @date 2019-03-17
      */
-    private boolean checkIsExistUId(String uId) {
+    private boolean checkIsExistUid(String uId) {
         logger.info("checkIsExistUId uId = {}", uId);
         return userService.selectCount(new EntityWrapper<UserModel>().eq("u_id", uId)) != 0;
     }
@@ -166,10 +168,10 @@ public class UserBizService {
         int pageSize = queryUserEntity.getPageSize()<=0?10:queryUserEntity.getPageSize();
 
         Page<UserModel> page = new Page<>(pageNum, pageSize);
-        EntityWrapper<UserModel> userEW = new EntityWrapper<>();
-        userEW.setSqlSelect("id","u_id","user_name","mobile","email","status","create_time");
-        userEW.eq(!StringUtils.isEmpty(realName),"user_name", realName).eq(!StringUtils.isEmpty(mobile),"mobile",mobile);
-        Page<UserModel> userPage = userService.selectPage(page, userEW);
+        EntityWrapper<UserModel> userEw = new EntityWrapper<>();
+        userEw.setSqlSelect("id","u_id","user_name","mobile","email","status","create_time");
+        userEw.eq(!StringUtils.isEmpty(realName),"user_name", realName).eq(!StringUtils.isEmpty(mobile),"mobile",mobile);
+        Page<UserModel> userPage = userService.selectPage(page, userEw);
 
         List<UserModel> records = userPage.getRecords();
         retMap.put("current", pageNum);
@@ -189,7 +191,7 @@ public class UserBizService {
      *                      TOKEN INTERNAL STORAGE EXPIRATION TIME IS 3 HOURS AFTER SYSTEM TIME DELAY
      */
     private String saveTokenToRedis(CurrentUser currentUser) {
-        String jwt = Application.PREFIX_TOKEN + JwtUtil.createJWT("howcool", currentUser, "", System.currentTimeMillis() + 3 * 60 * 60 * 1000);
+        String jwt = Application.PREFIX_TOKEN + JwtUtil.createJWT("howCool", currentUser, "", System.currentTimeMillis() + 3 * 60 * 60 * 1000);
         redisTemplate.opsForValue().set(currentUser.getUid(), jwt, 30, TimeUnit.MINUTES);
         return jwt;
     }
