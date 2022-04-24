@@ -19,7 +19,6 @@ public class ExecuteTimeAspect {
     public void serviceExecutionTimeLog(ExecuteTime executeTime) {
     }
 
-
     @Around(value = "serviceExecutionTimeLog(executeTime)", argNames = "proceedingJoinPoint,executeTime")
     public Object doAfter(ProceedingJoinPoint proceedingJoinPoint, ExecuteTime executeTime) throws Throwable {
         StopWatch stopWatch = new StopWatch();
