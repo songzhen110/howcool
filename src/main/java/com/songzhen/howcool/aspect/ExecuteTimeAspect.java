@@ -13,7 +13,6 @@ import org.springframework.util.StopWatch;
 @Aspect
 @Component
 public class ExecuteTimeAspect {
-
     private final Logger logger = LoggerFactory.getLogger(ExecuteTimeAspect.class);
 
     @Pointcut("@annotation(executeTime)")
