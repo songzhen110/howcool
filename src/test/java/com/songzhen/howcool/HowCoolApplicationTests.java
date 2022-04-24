@@ -2,6 +2,7 @@ package com.songzhen.howcool;
 
 import cn.hutool.core.lang.UUID;
 import com.songzhen.howcool.biz.UserBizService;
+import com.songzhen.howcool.entity.QueryUserEntity;
 import com.songzhen.howcool.service.HBaseService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,8 +24,8 @@ public class HowCoolApplicationTests {
 	@Autowired
 	private UserBizService userBizService;
 
-	@Autowired
-	private HBaseService hbaseService;
+	//@Autowired
+	//private HBaseService hbaseService;
 
 	@Test
 	public void contextLoads() {
@@ -33,7 +34,7 @@ public class HowCoolApplicationTests {
 
 	@Test
 	public void userRegister() {
-		userBizService.addUser(null,null,null,null);
+		//userBizService.addUser("zhangsan1","abc","1","123");
 	}
 
 	@Test
@@ -42,10 +43,18 @@ public class HowCoolApplicationTests {
 		logger.info("login res {}",login);
 	}
 
+	@Test
+	public void pageUsers() {
+		QueryUserEntity queryUserEntity = new QueryUserEntity();
+		queryUserEntity.setuId(20220424021207L);
+		Map<String, Object> stringObjectMap = userBizService.pageUsers(queryUserEntity);
+		logger.info("pageUsers res {}",stringObjectMap.toString());
+	}
+
 	/**
 	 * 测试删除、创建表
 	 */
-	@Test
+	/*@Test
 	public void testCreateTable() {
 		//删除表
 		hbaseService.deleteTable("t_track");
@@ -79,6 +88,6 @@ public class HowCoolApplicationTests {
 		result2.forEach((k,value) -> {
 			System.out.println(k + "---" + value);
 		});
-	}
+	}*/
 
 }

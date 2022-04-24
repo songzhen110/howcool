@@ -31,7 +31,7 @@ public class UserModel extends Model<UserModel> {
 	 * 
 	 */
 	@TableField(value="u_id")
-	private String uId;
+	private Long uId;
 
 	/**
 	 * 用户名
@@ -123,14 +123,14 @@ public class UserModel extends Model<UserModel> {
 	 * 获取: 用户id
 	 * 
 	 */
-	public String getUId() {
+	public Long getUId() {
 		return uId;
 	}
 	/**
 	 * 设置: 用户id
 	 * 
 	 */
-	public void setUId(String uId) {
+	public void setUId(Long uId) {
 		this.uId = uId;
 	}
     /**

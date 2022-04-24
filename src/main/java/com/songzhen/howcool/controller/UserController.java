@@ -3,7 +3,7 @@ package com.songzhen.howcool.controller;
 import cn.hutool.captcha.CaptchaUtil;
 import cn.hutool.captcha.ShearCaptcha;
 import com.google.common.collect.Maps;
-import com.songzhen.howcool.auth.NeedLogin;
+import com.songzhen.howcool.annotation.NeedLogin;
 import com.songzhen.howcool.biz.UserBizService;
 import com.songzhen.howcool.entity.QueryUserEntity;
 import com.songzhen.howcool.entity.UserLoginEntity;
@@ -133,7 +133,7 @@ public class UserController {
      * 列表用户
      */
     @NeedLogin
-    @PostMapping("pageUser")
+    @GetMapping("pageUser")
     public Map<String, Object> pageUser(@RequestBody QueryUserEntity queryUserEntity) {
         logger.info("login input params queryUserEntity={}", queryUserEntity);
         return userBizService.pageUsers(queryUserEntity);

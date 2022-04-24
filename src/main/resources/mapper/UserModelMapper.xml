@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.songzhen.howcool.dao.UserDao" >
+    <resultMap id="BaseResultMap" type="com.songzhen.howcool.model.UserModel" >
+        <id column="id" property="id" />
+        <result column="u_id" property="uId" />
+        <result column="user_name" property="userName" />
+        <result column="password" property="password" />
+        <result column="mobile" property="mobile" />
+        <result column="email" property="email" />
+        <result column="status" property="status" />
+        <result column="is_delete" property="isDelete" />
+        <result column="create_by" property="createBy" />
+        <result column="create_time" property="createTime" />
+        <result column="update_by" property="updateBy" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <sql id="Base_Table_Name">
+        `t_user`
+    </sql>
+
+    <sql id="Base_Column_List">
+        `id`,
+        `u_id`,
+        `user_name`,
+        `password`,
+        `mobile`,
+        `email`,
+        `status`,
+        `is_delete`,
+        `create_by`,
+        `create_time`,
+        `update_by`,
+        `update_time`
+    </sql>
+
+    <insert id="insertOrUpdate" parameterType="com.songzhen.howcool.model.UserModel">
+        INSERT INTO
+        <include refid="Base_Table_Name" />
+        (
+        `u_id`,
+        `user_name`,
+        `password`,
+        `mobile`,
+        `email`,
+        `status`,
+        `is_delete`,
+        `create_by`,
+        `create_time`,
+        `update_by`,
+        `update_time`
+        )
+        VALUES
+        (
+        #{uId},
+        #{userName},
+        #{password},
+        #{mobile},
+        #{email},
+        #{status},
+        #{isDelete},
+        #{createBy},
+        #{createTime},
+        #{updateBy},
+        #{updateTime}
+        )
+        ON DUPLICATE KEY UPDATE
+        `password`= VALUES(`password`),
+        `mobile`= VALUES(`mobile`),
+        `email`= VALUES(`email`),
+        `status`= VALUES(`status`),
+        `is_delete`= VALUES(`is_delete`),
+        `update_by`= VALUES(`update_by`),
+        `update_time`= VALUES(`update_time`)
+        /* userDAO.insertOrUpdate 如果违反唯一约束，则触发更新指定列数据 */
+    </insert>
+
+    <insert id="insert" parameterType="com.songzhen.howcool.model.UserModel">
+        INSERT IGNORE INTO
+        <include refid="Base_Table_Name" />
+        (
+        `u_id`,
+        `user_name`,
+        `password`,
+        `mobile`,
+        `email`,
+        `status`,
+        `is_delete`,
+        `create_by`,
+        `create_time`,
+        `update_by`,
+        `update_time`
+        )
+        VALUES
+        (
+        #{uId},
+        #{userName},
+        #{password},
+        #{mobile},
+        #{email},
+        #{status},
+        #{isDelete},
+        #{createBy},
+        #{createTime},
+        #{updateBy},
+        #{updateTime}
+        )
+        /* userDAO.insert 如果数据已存在则忽略插入 */
+    </insert>
+
+    <insert id="batchInsert">
+        insert into
+        <include refid="Base_Table_Name" />
+        (
+        `u_id`,
+        `user_name`,
+        `password`,
+        `mobile`,
+        `email`,
+        `status`,
+        `is_delete`,
+        `create_by`,
+        `create_time`,
+        `update_by`,
+        `update_time`
+        )
+        values
+        <foreach collection="records" separator="," item="record">
+            (#{record.uId,jdbcType=LONG},
+            #{record.userName,jdbcType=VARCHAR},
+            #{record.password,jdbcType=VARCHAR},
+            #{record.mobile,jdbcType=VARCHAR},
+            #{record.email,jdbcType=VARCHAR},
+            #{record.status,jdbcType=TINYINT},
+            #{record.isDelete,jdbcType=TINYINT},
+            #{record.createBy,jdbcType=VARCHAR},
+            #{record.createTime,jdbcType=TIMESTAMP},
+            #{record.updateBy,jdbcType=VARCHAR},
+            #{record.updateTime,jdbcType=TIMESTAMP}
+            )
+            /* userDAO.batchInsert 批量插入 */
+        </foreach>
+    </insert>
+
+
+</mapper>

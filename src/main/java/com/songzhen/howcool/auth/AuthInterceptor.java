@@ -2,6 +2,7 @@ package com.songzhen.howcool.auth;
 
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
+import com.songzhen.howcool.annotation.NeedLogin;
 import com.songzhen.howcool.model.enums.RetCodeEnum;
 import com.songzhen.howcool.util.JwtUtil;
 import org.slf4j.Logger;

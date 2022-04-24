@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
  * @version 1.0.0
  * @since 2018/7/12
  */
-@Configuration
+//@Configuration
 public class HBaseConfig {
     @Value("${hbase.nodes}")
     private String nodes;

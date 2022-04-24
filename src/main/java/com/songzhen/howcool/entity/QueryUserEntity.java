@@ -9,10 +9,19 @@ package com.songzhen.howcool.entity;
  * @date 2019/3/22
  */
 public class QueryUserEntity {
+    private Long uId;
     private String realName;
     private String mobile;
     private int pageNum;
     private int pageSize;
+
+    public Long getuId() {
+        return uId;
+    }
+
+    public void setuId(Long uId) {
+        this.uId = uId;
+    }
 
     public String getRealName() {
         return realName;

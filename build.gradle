@@ -12,6 +12,10 @@ sourceCompatibility = '1.8'
 repositories {
     //mavenCentral()
     maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+    maven {
+        url 'https://repo.maven.apache.org/maven2'
+        name 'Maven Central'
+    }
 }
 
 dependencies {
@@ -19,21 +23,27 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter'
     //spring-boot-starter-web
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework:spring-aspects:5.3.18'
 
     //工具库
     implementation 'com.google.guava:guava:27.0.1-jre'
     implementation 'cn.hutool:hutool-all:4.1.19'
     implementation 'com.alibaba:fastjson:1.2.47'
-
     //logging
     implementation 'org.springframework.boot:spring-boot-starter-logging'
 
     //mysql
     implementation 'mysql:mysql-connector-java:8.0.21'
 
+    //implementation 'com.ctrip.framework.apollo:apollo-client:0.6.2'
+
     //数据库支持
     implementation 'com.baomidou:mybatis-plus-boot-starter:2.3'
-    implementation 'com.alibaba:druid-spring-boot-starter:1.1.10'
+    //implementation 'com.alibaba:druid-spring-boot-starter:1.1.10'
+    implementation group: 'com.alibaba', name: 'druid', version: '1.1.10'
+
+    //数据库分库分
+    implementation 'org.apache.shardingsphere:sharding-jdbc-spring-boot-starter:4.1.1'
 
     //xxl-job
     implementation('com.xuxueli:xxl-job-core:2.1.2')
@@ -49,6 +59,7 @@ dependencies {
 
     //HBASE
     implementation 'org.apache.hbase:hbase-client:2.0.5'
+
     //TEST
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'junit:junit:4.12'

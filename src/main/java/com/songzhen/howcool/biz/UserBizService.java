@@ -6,24 +6,28 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.google.common.collect.Maps;
+import com.songzhen.howcool.annotation.ExecuteTime;
 import com.songzhen.howcool.constants.Application;
 import com.songzhen.howcool.entity.QueryUserEntity;
+import com.songzhen.howcool.event.RegUserEvent;
 import com.songzhen.howcool.model.UserModel;
+import com.songzhen.howcool.model.enums.TaskEnum;
 import com.songzhen.howcool.model.vo.CurrentUser;
+import com.songzhen.howcool.service.TableStrategy;
 import com.songzhen.howcool.service.UserService;
 import com.songzhen.howcool.util.JwtUtil;
 import com.songzhen.howcool.util.Md5Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.event.ApplicationEventMulticaster;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -36,7 +40,7 @@ import java.util.regex.Pattern;
  * @date 2019/3/16
  */
 @Service
-public class UserBizService {
+public class UserBizService implements ApplicationEventPublisherAware {
 
     private static final Logger logger = LoggerFactory.getLogger(UserBizService.class);
 
@@ -47,6 +51,8 @@ public class UserBizService {
 
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
+
+    private ApplicationEventPublisher applicationEventPublisher;
 
     /**
      * 注册账号.
@@ -59,14 +65,16 @@ public class UserBizService {
      */
     public Map<String, Object> addUser(String userName, String password, String mobile, String email) {
 
-        String uId = Application.USER_ID_PREFIX + DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN);
+        //String userId = Application.USER_ID_PREFIX + DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN);
+        Long userId = Long.parseLong(DateUtil.format(new Date(), DatePattern.PURE_DATETIME_PATTERN));
 
-        if (StrUtil.isBlank(userName) || StrUtil.isBlank(mobile) || StrUtil.isBlank(email) || checkIsExistUid(uId)) {
+        //if (StrUtil.isBlank(userName) || StrUtil.isBlank(mobile) || StrUtil.isBlank(email) || checkIsExistUid(userId)) {
+        if (StrUtil.isBlank(userName) || StrUtil.isBlank(mobile) || StrUtil.isBlank(email)) {
             return Maps.newHashMap();
         }
 
         UserModel model = new UserModel();
-        model.setUId(uId);
+        model.setUId(userId);
         model.setUserName(userName);
         model.setPassword(StrUtil.isBlank(password) ? Md5Util.encodeMD5(Application.USER_DEFAULT_PASSWORD) : Md5Util.encodeMD5(password));
         model.setStatus((byte) 1);
@@ -75,6 +83,8 @@ public class UserBizService {
         model.setCreateBy("admin");
         model.setUpdateBy("admin");
         userService.insert(model);
+
+        //applicationEventPublisher.publishEvent(new RegUserEvent(this,userId));
 
         return Maps.newHashMap();
     }
@@ -123,7 +133,7 @@ public class UserBizService {
 
         // 生成TOKEN并保存到REDIS
         CurrentUser currentUser = new CurrentUser();
-        currentUser.setUid(userModel.getUId());
+        currentUser.setUid(userModel.getUId().toString());
         currentUser.setUserName(userModel.getMobile());
         currentUser.setRealName(userModel.getEmail());
         currentUser.setDeviceId(deviceId);
@@ -157,11 +167,13 @@ public class UserBizService {
         return retMap;
     }
 
+    @ExecuteTime(name = "pageUsers")
     public Map<String, Object> pageUsers(QueryUserEntity queryUserEntity) {
         logger.info("logout input params queryUserEntity={}", queryUserEntity);
         // 存放返回数据
         HashMap<String, Object> retMap = Maps.newHashMap();
 
+        Long uId = queryUserEntity.getuId();
         String realName = queryUserEntity.getRealName();
         String mobile = queryUserEntity.getMobile();
         int pageNum = queryUserEntity.getPageNum()<=0?1:queryUserEntity.getPageNum();
@@ -170,7 +182,7 @@ public class UserBizService {
         Page<UserModel> page = new Page<>(pageNum, pageSize);
         EntityWrapper<UserModel> userEw = new EntityWrapper<>();
         userEw.setSqlSelect("id","u_id","user_name","mobile","email","status","create_time");
-        userEw.eq(!StringUtils.isEmpty(realName),"user_name", realName).eq(!StringUtils.isEmpty(mobile),"mobile",mobile);
+        userEw.eq(uId>0,"u_id",uId).eq(!StringUtils.isEmpty(realName),"user_name", realName).eq(!StringUtils.isEmpty(mobile),"mobile",mobile);
         Page<UserModel> userPage = userService.selectPage(page, userEw);
 
         List<UserModel> records = userPage.getRecords();
@@ -196,4 +208,16 @@ public class UserBizService {
         return jwt;
     }
 
+    private void selectBean(){
+        TaskEnum[] taskEnums = new TaskEnum[]{TaskEnum.A};
+        for (TaskEnum taskEnum : taskEnums) {
+            TableStrategy tableStrategy = TableStrategy.map.get(taskEnum.getScrollType());
+            List<String> task = tableStrategy.createTask(taskEnum, 1L);
+        }
+    }
+
+    @Override
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
+    }
 }
