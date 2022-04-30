@@ -34,7 +34,7 @@ public class HowCoolApplicationTests {
 
 	@Test
 	public void userRegister() {
-		//userBizService.addUser("zhangsan1","abc","1","123");
+		userBizService.addUser("zhangsan1","abc","1","123");
 	}
 
 	@Test
