@@ -29,7 +29,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-logging'
 
     //mysql
-    implementation 'mysql:mysql-connector-java:8.0.21'
+    implementation 'mysql:mysql-connector-java:8.0.28'
 
     //implementation 'com.ctrip.framework.apollo:apollo-client:0.6.2'
 
@@ -55,6 +55,8 @@ dependencies {
 
     //HBASE
     implementation 'org.apache.hbase:hbase-client:2.0.5'
+
+    implementation 'org.apache.dubbo:dubbo:3.0.7'
 
     //TEST
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

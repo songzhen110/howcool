@@ -38,7 +38,6 @@ public class RedisConfig extends CachingConfigurerSupport {
         StringRedisTemplate stringRedisTemplate = new StringRedisTemplate();
         stringRedisTemplate.setConnectionFactory(redisConnectionFactory);
 
-
         return stringRedisTemplate;
     }
 
