@@ -67,12 +67,14 @@ public class AuthInterceptor implements HandlerInterceptor {
                 String uid = JwtUtil.getUid(token);
                 String userName = JwtUtil.getUserName(token);
                 String realName = JwtUtil.getRealName(token);
+                String deviceId = JwtUtil.getDeviceId(token);
 
                 // 组装用户信息到REQUEST中
                 Map<String, Object> currentUser = new HashMap<>(16);
                 currentUser.put("uid", uid);
                 currentUser.put("userName", userName);
                 currentUser.put("realName", realName);
+                currentUser.put("deviceId",deviceId);
                 httpServletRequest.setAttribute("currentUser", currentUser);
 
                 return true;

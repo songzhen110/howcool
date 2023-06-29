@@ -133,9 +133,9 @@ public class UserController {
      * 列表用户
      */
     @NeedLogin
-    @GetMapping("pageUser")
+    @PostMapping("pageUser")
     public Map<String, Object> pageUser(@RequestBody QueryUserEntity queryUserEntity) {
-        logger.info("login input params queryUserEntity={}", queryUserEntity);
+        logger.info("pageUser input params queryUserEntity={}", queryUserEntity);
         return userBizService.pageUsers(queryUserEntity);
     }
 

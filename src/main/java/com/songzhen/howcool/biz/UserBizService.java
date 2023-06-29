@@ -3,6 +3,7 @@ package com.songzhen.howcool.biz;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 import com.google.common.collect.Maps;
@@ -169,12 +170,12 @@ public class UserBizService implements ApplicationEventPublisherAware {
 
     @ExecuteTime(name = "pageUsers")
     public Map<String, Object> pageUsers(QueryUserEntity queryUserEntity) {
-        logger.info("logout input params queryUserEntity={}", queryUserEntity);
+        logger.info("pageUsers input params queryUserEntity = {}", JSON.toJSONString(queryUserEntity));
         // 存放返回数据
         HashMap<String, Object> retMap = Maps.newHashMap();
 
-        Long uId = queryUserEntity.getuId();
-        String realName = queryUserEntity.getRealName();
+        CurrentUser currentUser = queryUserEntity.getCurrentUser();
+
         String mobile = queryUserEntity.getMobile();
         int pageNum = queryUserEntity.getPageNum()<=0?1:queryUserEntity.getPageNum();
         int pageSize = queryUserEntity.getPageSize()<=0?10:queryUserEntity.getPageSize();
@@ -182,7 +183,7 @@ public class UserBizService implements ApplicationEventPublisherAware {
         Page<UserModel> page = new Page<>(pageNum, pageSize);
         EntityWrapper<UserModel> userEw = new EntityWrapper<>();
         userEw.setSqlSelect("id","u_id","user_name","mobile","email","status","create_time");
-        userEw.eq(uId>0,"u_id",uId).eq(!StringUtils.isEmpty(realName),"user_name", realName).eq(!StringUtils.isEmpty(mobile),"mobile",mobile);
+        userEw.eq(!StringUtils.isEmpty(mobile),"mobile",mobile);
         Page<UserModel> userPage = userService.selectPage(page, userEw);
 
         List<UserModel> records = userPage.getRecords();
