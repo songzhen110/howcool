@@ -72,5 +72,38 @@ public class HttpReqResAdvice extends RequestBodyAdviceAdapter implements Respon
         return body;
     }
 
+    /**
+    //@RequestBody @Validated JoinLocationShareVO param, HttpServletRequest request
+    
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    @ResponseBody
+    public RestResponse jsonErrorHandler(HttpServletRequest req, Exception e) throws Exception {
+
+        // 全局统一校验
+        if(e instanceof MethodArgumentNotValidException ){
+            MethodArgumentNotValidException  ex = (MethodArgumentNotValidException) e;
+
+            BindingResult result = ex.getBindingResult();
+            StringBuffer sb = new StringBuffer();
+
+            for (FieldError error : result.getFieldErrors()) {
+                String field = error.getField();
+                String msg = error.getDefaultMessage();
+                logger.warn(String.format("%s:%s ", field, msg));
+                String message = String.format("【%s:%s】 ", field, "is error,please check");
+                sb.append(message);
+            }
+            logger.warn("请求url:{},请求参数：{},错误的请求参数：{}", req.getRequestURL(),JSON.toJSONString(req.getParameterMap()),sb);
+            return RestResponse.errorResp(MapErrorCode.PARAM_ERROR.getCode(),MapErrorCode.PARAM_ERROR.getMsg());
+        }
+        // 未知异常
+        else {
+            logger.error(e.getMessage(),e);
+            throw e;
+        }
+    }
+
+    */
+
 
 }
